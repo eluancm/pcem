@@ -20,7 +20,7 @@ typedef struct device_config_t
         int type;
         char default_string[256];
         int default_int;
-        device_config_selection_t selection[16];
+        device_config_selection_t selection[20];
 } device_config_t;
 
 typedef struct device_t

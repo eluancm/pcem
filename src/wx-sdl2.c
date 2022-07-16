@@ -38,6 +38,8 @@
 #include "disc_img.h"
 #include "mem.h"
 #include "paths.h"
+#include "lpt.h"
+#include "lpt_epsonprinter.h"
 
 #include "wx-sdl2-video.h"
 #include "wx-utils.h"
@@ -522,6 +524,8 @@ void sdl_onconfigloaded()
                 wx_create_directory(nvr_path);
         if (!wx_dir_exists(logs_path))
                 wx_create_directory(logs_path);
+        if (!wx_dir_exists(printer_path))
+                wx_create_directory(printer_path);
         if (!wx_dir_exists(screenshots_path))
                 wx_create_directory(screenshots_path);
 }
@@ -550,6 +554,8 @@ int pc_main(int argc, char** argv)
         set_default_screenshots_path(s);
         append_filename(s, pcem_path, "logs/", 511);
         set_default_logs_path(s);
+        append_filename(s, pcem_path, "printer/", 511);
+        set_default_printer_path(s);
 #endif
 
         add_config_callback(sdl_loadconfig, sdl_saveconfig, sdl_onconfigloaded);
@@ -958,6 +964,234 @@ int wx_handle_command(void* hwnd, int wParam, int checked)
 		cassette_eject();
                 saveconfig(NULL);
 	}
+        // TODO: support printer on LPT2 and call directly instead of calling
+        //       lpt* commands that are prone to break with emulation changes.
+        else if (ID_IS("IDM_PRINTER_RESET"))
+        {
+                uint8_t current_control = lpt1_read(2, NULL);
+                uint8_t control_no_strobe = current_control & (~0x01);
+                uint8_t control_strobe = current_control | (0x01);
+                device_t *lpt1_device = lpt1_device_getdevice(lpt1_current);
+
+                if (!lpt1_device)
+                        return 0;
+                if (lpt1_device != lpt_epsonprinter_device.device_lpt1)
+                        return 0;
+
+                lpt1_write(2, control_no_strobe, NULL);
+                lpt1_write(0, 0x1b, NULL); // ESC
+                lpt1_write(2, control_strobe, NULL);
+
+                lpt1_write(2, control_no_strobe, NULL);
+                lpt1_write(0, 0x40, NULL); // @
+                lpt1_write(2, control_strobe, NULL);
+
+                lpt1_write(2, control_no_strobe, NULL);
+        }
+        else if (ID_IS("IDM_PRINTER_FORMFEED"))
+        {
+                uint8_t current_control = lpt1_read(2, NULL);
+                uint8_t control_no_strobe = current_control & (~0x01);
+                uint8_t control_strobe = current_control | (0x01);
+                device_t *lpt1_device = lpt1_device_getdevice(lpt1_current);
+
+                if (!lpt1_device)
+                        return 0;
+                if (lpt1_device != lpt_epsonprinter_device.device_lpt1)
+                        return 0;
+
+                lpt1_write(2, control_no_strobe, NULL);
+                lpt1_write(0, 0x0c, NULL); // Form feed
+                lpt1_write(2, control_strobe, NULL);
+
+                lpt1_write(2, control_no_strobe, NULL);
+        }
+        else if (ID_IS("IDM_PRINTER_LINEFEED"))
+        {
+                uint8_t current_control = lpt1_read(2, NULL);
+                uint8_t control_no_strobe = current_control & (~0x01);
+                uint8_t control_strobe = current_control | (0x01);
+                device_t *lpt1_device = lpt1_device_getdevice(lpt1_current);
+
+                if (!lpt1_device)
+                        return 0;
+                if (lpt1_device != lpt_epsonprinter_device.device_lpt1)
+                        return 0;
+
+                lpt1_write(2, control_no_strobe, NULL);
+                lpt1_write(0, 0x0a, NULL); // \n
+                lpt1_write(2, control_strobe, NULL);
+
+                lpt1_write(2, control_no_strobe, NULL);
+        }
+        else if (ID_IS("IDM_PRINTER_LOADEJECT"))
+        {
+                uint8_t current_control = lpt1_read(2, NULL);
+                uint8_t control_no_strobe = current_control & (~0x01);
+                uint8_t control_strobe = current_control | (0x01);
+                device_t *lpt1_device = lpt1_device_getdevice(lpt1_current);
+
+                if (!lpt1_device)
+                        return 0;
+                if (lpt1_device != lpt_epsonprinter_device.device_lpt1)
+                        return 0;
+
+                lpt1_write(2, control_no_strobe, NULL);
+                lpt1_write(0, 0x1b, NULL); // ESC
+                lpt1_write(2, control_strobe, NULL);
+
+                lpt1_write(2, control_no_strobe, NULL);
+                lpt1_write(0, 0x1b, NULL); // ESC
+                lpt1_write(2, control_strobe, NULL);
+
+                lpt1_write(2, control_no_strobe, NULL);
+        }
+        else if (ID_IS("IDM_PRINTER_FONTDRAFT"))
+        {
+                uint8_t current_control = lpt1_read(2, NULL);
+                uint8_t control_no_strobe = current_control & (~0x01);
+                uint8_t control_strobe = current_control | (0x01);
+                device_t *lpt1_device = lpt1_device_getdevice(lpt1_current);
+
+                if (!lpt1_device)
+                        return 0;
+                if (lpt1_device != lpt_epsonprinter_device.device_lpt1)
+                        return 0;
+
+                lpt1_write(2, control_no_strobe, NULL);
+                lpt1_write(0, 0x1b, NULL); // ESC
+                lpt1_write(2, control_strobe, NULL);
+
+                lpt1_write(2, control_no_strobe, NULL);
+                lpt1_write(0, 0x78, NULL); // x
+                lpt1_write(2, control_strobe, NULL);
+
+                lpt1_write(2, control_no_strobe, NULL);
+                lpt1_write(0, 0x00, NULL); // \0
+                lpt1_write(2, control_strobe, NULL);
+
+                lpt1_write(2, control_no_strobe, NULL);
+                lpt1_write(0, 0x12, NULL); // DC2
+                lpt1_write(2, control_strobe, NULL);
+
+                lpt1_write(2, control_no_strobe, NULL);
+        }
+        else if (ID_IS("IDM_PRINTER_FONTCONDENSEDDRAFT"))
+        {
+                uint8_t current_control = lpt1_read(2, NULL);
+                uint8_t control_no_strobe = current_control & (~0x01);
+                uint8_t control_strobe = current_control | (0x01);
+                device_t *lpt1_device = lpt1_device_getdevice(lpt1_current);
+
+                if (!lpt1_device)
+                        return 0;
+                if (lpt1_device != lpt_epsonprinter_device.device_lpt1)
+                        return 0;
+
+                lpt1_write(2, control_no_strobe, NULL);
+                lpt1_write(0, 0x1b, NULL); // ESC
+                lpt1_write(2, control_strobe, NULL);
+
+                lpt1_write(2, control_no_strobe, NULL);
+                lpt1_write(0, 0x78, NULL); // x
+                lpt1_write(2, control_strobe, NULL);
+
+                lpt1_write(2, control_no_strobe, NULL);
+                lpt1_write(0, 0x00, NULL); // \0
+                lpt1_write(2, control_strobe, NULL);
+
+                lpt1_write(2, control_no_strobe, NULL);
+                lpt1_write(0, 0x0f, NULL); // SI
+                lpt1_write(2, control_strobe, NULL);
+
+                lpt1_write(2, control_no_strobe, NULL);
+        }
+        else if (ID_IS("IDM_PRINTER_NLQROMAN"))
+        {
+                uint8_t current_control = lpt1_read(2, NULL);
+                uint8_t control_no_strobe = current_control & (~0x01);
+                uint8_t control_strobe = current_control | (0x01);
+                device_t *lpt1_device = lpt1_device_getdevice(lpt1_current);
+
+                if (!lpt1_device)
+                        return 0;
+                if (lpt1_device != lpt_epsonprinter_device.device_lpt1)
+                        return 0;
+
+                // TODO: see if condensed is unset too or just ignored
+                lpt1_write(2, control_no_strobe, NULL);
+                lpt1_write(0, 0x12, NULL); // DC2
+                lpt1_write(2, control_strobe, NULL);
+
+                lpt1_write(2, control_no_strobe, NULL);
+                lpt1_write(0, 0x1b, NULL); // ESC
+                lpt1_write(2, control_strobe, NULL);
+
+                lpt1_write(2, control_no_strobe, NULL);
+                lpt1_write(0, 0x78, NULL); // x
+                lpt1_write(2, control_strobe, NULL);
+
+                lpt1_write(2, control_no_strobe, NULL);
+                lpt1_write(0, 0x01, NULL); // \1
+                lpt1_write(2, control_strobe, NULL);
+
+                lpt1_write(2, control_no_strobe, NULL);
+                lpt1_write(0, 0x1b, NULL); // ESC
+                lpt1_write(2, control_strobe, NULL);
+
+                lpt1_write(2, control_no_strobe, NULL);
+                lpt1_write(0, 0x6b, NULL); // k
+                lpt1_write(2, control_strobe, NULL);
+
+                lpt1_write(2, control_no_strobe, NULL);
+                lpt1_write(0, 0x00, NULL); // \0
+                lpt1_write(2, control_strobe, NULL);
+
+                lpt1_write(2, control_no_strobe, NULL);
+        }
+        else if (ID_IS("IDM_PRINTER_NLQSANSSERIF"))
+        {
+                uint8_t current_control = lpt1_read(2, NULL);
+                uint8_t control_no_strobe = current_control & (~0x01);
+                uint8_t control_strobe = current_control | (0x01);
+                device_t *lpt1_device = lpt1_device_getdevice(lpt1_current);
+
+                if (!lpt1_device)
+                        return 0;
+                if (lpt1_device != lpt_epsonprinter_device.device_lpt1)
+                        return 0;
+
+                // TODO: see if condensed is unset too or just ignored
+                lpt1_write(2, control_no_strobe, NULL);
+                lpt1_write(0, 0x12, NULL); // DC2
+                lpt1_write(2, control_strobe, NULL);
+
+                lpt1_write(2, control_no_strobe, NULL);
+                lpt1_write(0, 0x1b, NULL); // ESC
+                lpt1_write(2, control_strobe, NULL);
+
+                lpt1_write(2, control_no_strobe, NULL);
+                lpt1_write(0, 0x78, NULL); // x
+                lpt1_write(2, control_strobe, NULL);
+
+                lpt1_write(2, control_no_strobe, NULL);
+                lpt1_write(0, 0x01, NULL); // \1
+                lpt1_write(2, control_strobe, NULL);
+
+                lpt1_write(2, control_no_strobe, NULL);
+                lpt1_write(0, 0x1b, NULL); // ESC
+                lpt1_write(2, control_strobe, NULL);
+
+                lpt1_write(2, control_no_strobe, NULL);
+                lpt1_write(0, 0x6b, NULL); // k
+                lpt1_write(2, control_strobe, NULL);
+
+                lpt1_write(2, control_no_strobe, NULL);
+                lpt1_write(0, 0x01, NULL); // \1
+                lpt1_write(2, control_strobe, NULL);
+
+                lpt1_write(2, control_no_strobe, NULL);
+        }
         else if (ID_IS("IDM_MACHINE_TOGGLE"))
         {
                 if (emulation_state != EMULATION_STOPPED)

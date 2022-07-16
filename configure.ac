@@ -129,6 +129,9 @@ if test "$enable_alsa" == "yes"; then
 fi
 
 AC_CHECK_LIB([pthread], [pthread_create])
+PKG_CHECK_MODULES(FREETYPE2, freetype2)
+AC_SUBST(FREETYPE2_LIBS)
+AC_SUBST(FREETYPE2_CFLAGS)
 
 build_macosx="no"
 build_linux="no"
@@ -186,8 +189,9 @@ case "$host" in
        ;;
 esac
 
-CFLAGS="$CFLAGS $SDL_CFLAGS"
-LIBS="$LIBS $WX_LIBS $SDL_LIBS"
+CFLAGS="$CFLAGS $SDL_CFLAGS $FREETYPE2_CFLAGS"
+CXXFLAGS="$CXXFLAGS $SDL_CFLAGS $FREETYPE2_CFLAGS"
+LIBS="$LIBS $WX_LIBS $SDL_LIBS $FREETYPE2_LIBS"
 
 AM_CONDITIONAL(OS_LINUX, [test "$build_linux" = "yes"])
 AM_CONDITIONAL(OS_WINDOWS, [test "$build_win" = "yes"])

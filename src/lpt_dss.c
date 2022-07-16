@@ -2,7 +2,7 @@
 #include "ibm.h"
 #include "filters.h"
 #include "lpt.h"
-#include "lpt_dac.h"
+#include "lpt_dss.h"
 #include "sound.h"
 
 typedef struct dss_t
@@ -100,12 +100,63 @@ static void dss_close(void *p)
         free(dss);
 }
 
-lpt_device_t dss_device =
+void *dss_init_lpt1()
+{
+        void *p = dss_init();
+        lpt1_device_attach(&lpt_dss_device, p);
+
+        return p;
+}
+void dss_close_lpt1(void *p)
+{
+        dss_close(p);
+        lpt1_device_detach();
+}
+
+void *dss_init_lpt2()
+{
+        void *p = dss_init();
+        lpt2_device_attach(&lpt_dss_device, p);
+
+        return p;
+}
+void dss_close_lpt2(void *p)
+{
+        dss_close(p);
+        lpt2_device_detach();
+}
+
+device_t dss_device_lpt1 =
 {
         "Disney Sound Source",
-        dss_init,
-        dss_close,
+        0,
+        dss_init_lpt1,
+        dss_close_lpt1,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL
+};
+device_t dss_device_lpt2 =
+{
+        "Disney Sound Source",
+        0,
+        dss_init_lpt2,
+        dss_close_lpt2,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL
+};
+
+lpt_device_t lpt_dss_device =
+{
         dss_write_data,
         dss_write_ctrl,
-        dss_read_status
+        dss_read_status,
+        NULL,
+        &dss_device_lpt1,
+        &dss_device_lpt2
 };

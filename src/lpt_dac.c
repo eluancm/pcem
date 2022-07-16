@@ -95,21 +95,113 @@ static void dac_close(void *p)
         free(lpt_dac);
 }
 
-lpt_device_t lpt_dac_device =
+void *dac_init_lpt1()
+{
+        void *p = dac_init();
+        lpt1_device_attach(&lpt_dac_device, p);
+
+        return p;
+}
+void dac_close_lpt1(void *p)
+{
+        dac_close(p);
+        lpt1_device_detach();
+}
+
+void *dac_init_lpt2()
+{
+        void *p = dac_init();
+        lpt2_device_attach(&lpt_dac_device, p);
+
+        return p;
+}
+void dac_close_lpt2(void *p)
+{
+        dac_close(p);
+        lpt2_device_detach();
+}
+
+device_t dac_device_lpt1 =
 {
         "LPT DAC / Covox Speech Thing",
-        dac_init,
-        dac_close,
+        0,
+        dac_init_lpt1,
+        dac_close_lpt1,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL
+};
+device_t dac_device_lpt2 =
+{
+        "LPT DAC / Covox Speech Thing",
+        0,
+        dac_init_lpt2,
+        dac_close_lpt2,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL
+};
+
+void *dac_stereo_init_lpt1()
+{
+        void *p = dac_stereo_init();
+        lpt1_device_attach(&lpt_dac_stereo_device, p);
+
+        return p;
+}
+
+void *dac_stereo_init_lpt2()
+{
+        void *p = dac_stereo_init();
+        lpt2_device_attach(&lpt_dac_stereo_device, p);
+
+        return p;
+}
+
+device_t dac_stereo_device_lpt1 =
+{
+        "Stereo LPT DAC",
+        0,
+        dac_stereo_init_lpt1,
+        dac_close_lpt1,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL
+};
+device_t dac_stereo_device_lpt2 =
+{
+        "Stereo LPT DAC",
+        0,
+        dac_stereo_init_lpt2,
+        dac_close_lpt2,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL
+};
+
+lpt_device_t lpt_dac_device =
+{
         dac_write_data,
         dac_write_ctrl,
-        dac_read_status
+        dac_read_status,
+        NULL,
+        &dac_device_lpt1,
+        &dac_device_lpt2
 };
 lpt_device_t lpt_dac_stereo_device =
 {
-        "Stereo LPT DAC",
-        dac_stereo_init,
-        dac_close,
         dac_write_data,
         dac_write_ctrl,
-        dac_read_status
+        dac_read_status,
+        NULL,
+        &dac_stereo_device_lpt1,
+        &dac_stereo_device_lpt2
 };

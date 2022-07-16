@@ -592,7 +592,7 @@ int config_dlgsave(void* hdlg)
             temp_voodoo != voodoo_enabled || temp_dynarec != cpu_use_dynarec ||
             temp_fda_type != fdd_get_type(0) || temp_fdb_type != fdd_get_type(1) ||
             temp_mouse_type != mouse_type || hdd_changed || hd_changed || cdrom_channel != new_cdrom_channel ||
-            zip_channel != new_zip_channel || strcmp(lpt1_device_name, lpt_device_get_internal_name(temp_lpt1_device))
+            zip_channel != new_zip_channel || lpt1_current != temp_lpt1_device
 #ifdef USE_NETWORKING
                             || temp_network_card != network_card_current
 #endif
@@ -615,7 +615,7 @@ int config_dlgsave(void* hdlg)
                         voodoo_enabled = temp_voodoo;
                         cpu_use_dynarec = temp_dynarec;
                         mouse_type = temp_mouse_type;
-                        strcpy(lpt1_device_name, lpt_device_get_internal_name(temp_lpt1_device));
+                        lpt1_current = temp_lpt1_device;
 #ifdef USE_NETWORKING
                         network_card_current = temp_network_card;
 #endif
@@ -703,6 +703,7 @@ int config_dlgproc(void* hdlg, int message, INT_PARAM wParam, LONG_PARAM lParam)
         int gfx, mem;
         int temp_cpu, temp_cpu_m, temp_model, temp_fpu;
         int temp_sound_card_current;
+        int temp_lpt1_current;
         int temp_dynarec;
         int cpu_flags;
         int cpu_type;
@@ -838,6 +839,12 @@ int config_dlgproc(void* hdlg, int message, INT_PARAM wParam, LONG_PARAM lParam)
                         else
                                 wx_enablewindow(h, FALSE);
 
+                        h = wx_getdlgitem(hdlg, WX_ID("IDC_CONFIGURELPT1"));
+                        if (lpt1_device_has_config(lpt1_current))
+                                wx_enablewindow(h, TRUE);
+                        else
+                                wx_enablewindow(h, FALSE);
+
                         h = wx_getdlgitem(hdlg, WX_ID("IDC_COMBODRA"));
                         wx_sendmessage(h, WX_CB_ADDSTRING, 0, (LONG_PARAM)"None");
                         wx_sendmessage(h, WX_CB_ADDSTRING, 0, (LONG_PARAM)"5.25\" 360k");
@@ -937,7 +944,7 @@ int config_dlgproc(void* hdlg, int message, INT_PARAM wParam, LONG_PARAM lParam)
                                         break;
 
                                 wx_sendmessage(h, WX_CB_ADDSTRING, 0, (LONG_PARAM)s);
-                                if (!strcmp(lpt1_device_name, lpt_device_get_internal_name(c)))
+                                if (lpt1_current == c)
                                         d = c;
 
                                 c++;
@@ -1265,6 +1272,24 @@ int config_dlgproc(void* hdlg, int message, INT_PARAM wParam, LONG_PARAM lParam)
 
                                 h = wx_getdlgitem(hdlg, WX_ID("IDC_CONFIGURESND"));
                                 if (sound_card_has_config(temp_sound_card_current))
+                                        wx_enablewindow(h, TRUE);
+                                else
+                                        wx_enablewindow(h, FALSE);
+                        }
+                        else if (wParam == WX_ID("IDC_CONFIGURELPT1"))
+                        {
+                                h = wx_getdlgitem(hdlg, WX_ID("IDC_COMBOLPT1"));
+                                temp_lpt1_current = wx_sendmessage(h, WX_CB_GETCURSEL, 0, 0);
+
+                                deviceconfig_open(hdlg, (void *) lpt1_device_getdevice(temp_lpt1_current));
+                        }
+                        else if (wParam == WX_ID("IDC_COMBOLPT1"))
+                        {
+                                h = wx_getdlgitem(hdlg, WX_ID("IDC_COMBOLPT1"));
+                                temp_lpt1_current = wx_sendmessage(h, WX_CB_GETCURSEL, 0, 0);
+
+                                h = wx_getdlgitem(hdlg, WX_ID("IDC_CONFIGURELPT1"));
+                                if (lpt1_device_has_config(temp_lpt1_current))
                                         wx_enablewindow(h, TRUE);
                                 else
                                         wx_enablewindow(h, FALSE);

@@ -146,6 +146,34 @@
 				<label>_Eject tape</label>
 			</object>
 		</object>
+		<object class="wxMenu" name="IDM_PRINTER">
+			<label>_Printer</label>
+			<object class="wxMenuItem" name="IDM_PRINTER_RESET">
+				<label>_Reset printer</label>
+			</object>
+			<object class="wxMenuItem" name="IDM_PRINTER_FORMFEED">
+				<label>_Form feed (eject page)</label>
+			</object>
+			<object class="wxMenuItem" name="IDM_PRINTER_LINEFEED">
+				<label>_Line feed (insert line)</label>
+			</object>
+			<object class="wxMenuItem" name="IDM_PRINTER_LOADEJECT">
+				<label>L_oad/Eject (print over the current page again)</label>
+			</object>
+			<object class="separator"/>
+			<object class="wxMenuItem" name="IDM_PRINTER_FONTDRAFT">
+				<label>Set font to _Draft</label>
+			</object>
+			<object class="wxMenuItem" name="IDM_PRINTER_FONTCONDENSEDDRAFT">
+				<label>Set font to Draft _Condensed</label>
+			</object>
+			<object class="wxMenuItem" name="IDM_PRINTER_NLQROMAN">
+				<label>Set font to _NLQ Roman</label>
+			</object>
+			<object class="wxMenuItem" name="IDM_PRINTER_NLQSANSSERIF">
+				<label>Set font to NLQ _Sans Serif</label>
+			</object>
+		</object>
 		<object class="wxMenu">
 			<label>Video</label>
 			<object class="wxMenu">
@@ -1031,6 +1059,15 @@
 												<content />
 											</object>
 										</object>
+									</object>
+								</object>
+								<object class="sizeritem">
+									<option>0</option>
+									<flag>wxALL</flag>
+									<border>5</border>
+									<object class="wxBitmapButton" name="IDC_CONFIGURELPT1">
+										<bitmap>icons/16x16/setting_tools.png</bitmap>
+										<default>0</default>
 									</object>
 								</object>
 								<object class="spacer">

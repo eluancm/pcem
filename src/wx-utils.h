@@ -82,6 +82,7 @@ extern "C" {
 
         void wx_date_format(char* s, const char* format);
 
+        int wx_image_save_fullpath(const char* fullpath, const char* format, unsigned char* rgba, int width, int height, int alpha);
         int wx_image_save(const char* path, const char* name, const char* format, unsigned char* rgba, int width, int height, int alpha);
 
         void* wx_image_load(const char* path);
