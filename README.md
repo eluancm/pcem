@@ -1,3 +1,8 @@
+## THIS IS A FORK OF AN OLD VERSION
+Check the current version [here](https://github.com/sarah-walker-pcem/pcem).
+
+PCem is moving in bold new directions now and it will take some time to fully stabilize and iron out all the regressions, so I've forked the last version before the big changes to keep it in working order while we wait for that. This is for my own personal use under Linux with a couple of the emulated machines.
+
 # [PCem](https://pcem-emulator.co.uk/)
 ## Download: [Windows](https://pcem-emulator.co.uk/files/PCemV17Win.zip)/[Linux](https://pcem-emulator.co.uk/files/PCemV17Linux.tar.gz)
 
@@ -15,6 +20,13 @@ You will need the following libraries (and their dependencies):
 - SDL2
 - wxWidgets 3.x
 - OpenAL
+- Alsa (optional)
+- Freetype (for truetype font support in the printer)
+
+In Debian/Ubuntu-based systems, the following command should install all dependencies:
+```
+sudo apt-get install build-essential libsdl2-dev libgtk2.0-dev libgtk-3-dev libopenal-dev libasound2
+```
 
 Open a terminal window, navigate to the PCem directory then enter:
 ### Linux
@@ -55,7 +67,7 @@ Systems | [8088](#8088-based)<br/>[8086](#8086-based)<br/>[286](#286-based)<br/>
 Graphics | [Basic](#basic-cards)<br/>[Unaccelerated (S)VGA cards](#unaccelerated-svga-cards)<br/>[2D accelerated SVGA cards](#2d-accelerated-svga-cards)<br/>[3D accelerated SVGA cards](#3d-accelerated-svga-cards)<br/>[3D only cards](#3d-only-cards)
 Sound | [Cards](#sound-cards)
 HDD Controller | [Cards](#hdd-controller-cards)
-Misc | [Cards](#misc-cards)
+Misc | [Mice](#mice)<br/>[ATAPI](#atapi)<br/>[Printers](#printers)
 
 ### [Software Tested](TESTED.md) (list)
 - [DOS](TESTED.md#dos)<br/>
@@ -385,7 +397,9 @@ SCSI | <b>BusLogic BT-545S</b> | 16-bit SCSI controller. | BusLogic_BT-545S_U15_
 
 <hr>
 
-## Misc Cards
+## Misc
+
+### Mice
 
 Hardware | Note
 --- | ---
@@ -394,4 +408,15 @@ M24 mouse | I haven't seen a DOS mouse driver for this yet but the regular scanc
 PC1512 mouse | The PC1512's perculiar quadrature mouse. You need Amstrad's actual driver for this one.
 PS/2 mouse | A standard 2 button PS/2 mouse. As with serial, compatible drivers are common.
 Microsoft PS/2 Intellimouse | A PS/2 mouse with mouse wheel.
+
+### ATAPI
+
+Hardware | Note
+--- | ---
 ATAPI CD-ROM | Works with OAKCDROM.SYS, VDD-IDE.SYS, and the internal drivers of every OS I've tried.
+
+### Printers
+
+Hardware | Note
+--- | ---
+Epson LX-810 | A LPT dot-matrix printer that speaks a variant of Epson's ESC/P. Experimental. See [the source](src/lpt_epsonprinter.c) for instructions.
