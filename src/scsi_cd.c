@@ -627,7 +627,7 @@ static uint32_t ide_atapi_mode_sense(scsi_cd_data_t *data, uint32_t pos, uint8_t
 		}
 		else
 		{
-			buf[pos++] = 5; /* Reserved */
+			buf[pos++] = 5; /* Reserved */ /* TODO: if & 2, stop playing when crossing tracks */
 			buf[pos++] = 4; /* Reserved */
 			buf[pos++] = 0; /* Reserved */
 			buf[pos++] = 0x80; /* Reserved */
@@ -1431,7 +1431,7 @@ static int scsi_cd_command(uint8_t *cdb, void *p)
 				data->data_in[idx++] = 0x00;
 				data->data_in[idx++] = 0x00;
 				data->data_in[idx++] = 20;
-				ide_padstr8(data->data_in + idx, 20, "53R141");	/* Serial */
+				ide_padstr8(data->data_in + idx, 20, cd_models[cd_data->cur_model].serial_20); /* Serial */
 				idx += 20;
 
 				if (idx + 72 > max_len)
@@ -1446,7 +1446,7 @@ static int scsi_cd_command(uint8_t *cdb, void *p)
 				idx += 8;
 				ide_padstr8(data->data_in + idx, 40, cd_models[cd_data->cur_model].model_and_firmware_40); /* Product */
 				idx += 40;
-				ide_padstr8(data->data_in + idx, 20, cd_models[cd_data->cur_model].serial_20); /* Product */
+				ide_padstr8(data->data_in + idx, 20, cd_models[cd_data->cur_model].serial_20); /* Serial */
 				idx += 20;				
 				break;
 				

@@ -1036,7 +1036,7 @@ static void azt2316a_get_buffer(int32_t *buffer, int len, void *p)
         sb_get_buffer_sbpro(buffer, len, azt2316a->sb);
 }
 
-void *azt_common_init(const int type, char *nvr_filename)
+void *azt_common_init(const int type, const char *nvr_filename)
 {
         int i;
         int loaded_from_eeprom = 0;
@@ -1405,6 +1405,23 @@ void *azt_common_init(const int type, char *nvr_filename)
         if (addr_setting)
                 azt2316a->cur_addr = addr_setting;
 
+        /* OLD BEHAVIOR THAT CREATES EEPROM CONTENTS USING PCEM'S CONFIG INTERFACE
+        // no eeprom saved or invalid checksum, load defaults
+        if (!loaded_from_eeprom)
+        {
+                azt2316a->cur_addr = (device_get_config_int("addr") == 0) ? (0x220) : (device_get_config_int("addr"));
+                azt2316a->cur_irq = device_get_config_int("irq");
+                azt2316a->cur_dma = device_get_config_int("dma");
+                azt2316a->cur_wss_enabled = device_get_config_int("wss_enabled");
+                azt2316a->cur_wss_addr = device_get_config_int("wss_addr");
+                azt2316a->cur_wss_irq = device_get_config_int("wss_irq");
+                azt2316a->cur_wss_dma = device_get_config_int("wss_dma");
+                azt2316a->cur_mpu401_addr = device_get_config_int("mpu401_addr");
+                azt2316a->cur_mpu401_irq = device_get_config_int("mpu401_irq");
+                azt2316a->cur_mode = device_get_config_int("initial_mode");
+        }
+        */
+
         // now we can continue initializing
         azt2316a->opl_emu = device_get_config_int("opl_emu");
         azt2316a->wss_interrupt_after_config = device_get_config_int("wss_interrupt_after_config");
@@ -1464,7 +1481,7 @@ void *azt1605_init()
         return azt_common_init(SB_SUBTYPE_CLONE_AZT1605_0X0C, "azt1605.nvr");
 }
 
-void azt_common_close(void *p, char *nvr_filename)
+void azt_common_close(void *p, const char *nvr_filename)
 {
         azt2316a_t *azt2316a = (azt2316a_t *)p;
         int i;
@@ -1565,6 +1582,236 @@ static device_config_t azt2316a_config[] =
                 },
                 .default_int = 0
         },
+        /*
+         * The options below do NOT exist as jumpers, but can be used to set
+         * "default EEPROM settings" to avoid having to reconfigure the EEPROM
+         * when using an dumped HDD image.
+        {
+                .name = "initial_mode",
+                .description = "Operating mode at boot",
+                .type = CONFIG_SELECTION,
+                .selection =
+                {
+                        {
+                                .description = "Windows Sound System",
+                                .value = 1
+                        },
+                        {
+                                .description = "Sound Blaster Pro v2",
+                                .value = 0
+                        }
+                },
+                .default_int = 0
+        },
+        {
+                .name = "irq",
+                .description = "SB IRQ",
+                .type = CONFIG_SELECTION,
+                .selection =
+                {
+                        {
+                                .description = "IRQ 2",
+                                .value = 2
+                        },
+                        {
+                                .description = "IRQ 3 (Clinton family only)",
+                                .value = 3
+                        },
+                        {
+                                .description = "IRQ 5",
+                                .value = 5
+                        },
+                        {
+                                .description = "IRQ 7",
+                                .value = 7
+                        },
+                        {
+                                .description = "IRQ 10 (Washington family only)",
+                                .value = 10
+                        },
+                        {
+                                .description = ""
+                        }
+                },
+                .default_int = 5
+        },
+        {
+                .name = "dma",
+                .description = "SB DMA",
+                .type = CONFIG_SELECTION,
+                .selection =
+                {
+                        {
+                                .description = "DMA 0",
+                                .value = 0
+                        },
+                        {
+                                .description = "DMA 1",
+                                .value = 1
+                        },
+                        {
+                                .description = "DMA 3",
+                                .value = 3
+                        },
+                        {
+                                .description = ""
+                        }
+                },
+                .default_int = 1
+        },
+        {
+                .name = "wss_enabled",
+                .description = "WSS enabled",
+                .type = CONFIG_BINARY,
+                .default_int = 1
+        },
+        {
+                .name = "wss_addr",
+                .description = "WSS Address",
+                .type = CONFIG_SELECTION,
+                .selection =
+                {
+                        {
+                                .description = "0x530",
+                                .value = 0x530
+                        },
+                        {
+                                .description = "0x604",
+                                .value = 0x604
+                        },
+                        {
+                                .description = "0xE80",
+                                .value = 0xE80
+                        },
+                        {
+                                .description = "0xF40",
+                                .value = 0xF40
+                        },
+                        {
+                                .description = ""
+                        }
+                },
+                .default_int = 0x530
+        },
+        {
+                .name = "wss_irq",
+                .description = "WSS IRQ",
+                .type = CONFIG_SELECTION,
+                .selection =
+                {
+                        {
+                                .description = "5",
+                                .value = 5
+                        },
+                        {
+                                .description = "7",
+                                .value = 7
+                        },
+                        {
+                                .description = "9",
+                                .value = 9
+                        },
+                        {
+                                .description = "10",
+                                .value = 10
+                        },
+                        {
+                                .description = "11",
+                                .value = 11
+                        },
+                        {
+                                .description = "12",
+                                .value = 12
+                        },
+                        {
+                                .description = "14",
+                                .value = 14
+                        },
+                        {
+                                .description = "15",
+                                .value = 15
+                        },
+                        {
+                                .description = ""
+                        }
+                },
+                .default_int = 10
+        },
+        {
+                .name = "wss_dma",
+                // TODO: 8/16-bit? Also, When doing capture in the future, see full duplex bits (which are set in the same register - see Linux driver)
+                .description = "WSS DMA",
+                .type = CONFIG_SELECTION,
+                .selection =
+                {
+                        {
+                                .description = "0",
+                                .value = 0
+                        },
+                        {
+                                .description = "1",
+                                .value = 1
+                        },
+                        {
+                                .description = "3",
+                                .value = 3
+                        },
+                        {
+                                .description = ""
+                        }
+                },
+                .default_int = 0
+       },
+       {
+                .name = "mpu401_addr",
+                .description = "MPU401 Address",
+                .type = CONFIG_SELECTION,
+                .selection =
+                {
+                        {
+                                .description = "0x300",
+                                .value = 0x300
+                        },
+                        {
+                                .description = "0x330",
+                                .value = 0x330
+                        }
+                },
+                .default_int = 0x330
+        },
+        {
+                .name = "mpu401_irq",
+                .description = "MPU401 IRQ",
+                .type = CONFIG_SELECTION,
+                .selection =
+                {
+                        {
+                                .description = "IRQ 2",
+                                .value = 2
+                        },
+                        {
+                                .description = "IRQ 3 (Clinton family only)",
+                                .value = 3
+                        },
+                        {
+                                .description = "IRQ 5",
+                                .value = 5
+                        },
+                        {
+                                .description = "IRQ 7",
+                                .value = 7
+                        },
+                        {
+                                .description = "IRQ 10 (Washington family only)",
+                                .value = 10
+                        },
+                        {
+                                .description = ""
+                        }
+                },
+                .default_int = 2
+        },
+        */
         {
                 .name = "midi",
                 .description = "MIDI out device",

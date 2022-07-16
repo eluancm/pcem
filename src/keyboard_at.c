@@ -148,7 +148,7 @@ void keyboard_at_poll()
                 keyboard_at.out_new = keyboard_at.out_delayed;
                 keyboard_at.out_delayed = -1;
         }
-        else if (!(keyboard_at.status & STAT_OFULL) && keyboard_at.out_new == -1 &&
+        else if (!(keyboard_at.status & STAT_OFULL) && keyboard_at.out_new == -1 && // FIXME: this block will never enter if the previous didn't, there's just an additional && condition
                  !(keyboard_at.mem[0] & 0x10) && keyboard_at.out_delayed != -1)
         {
                 keyboard_at.out_new = keyboard_at.out_delayed;

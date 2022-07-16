@@ -171,8 +171,10 @@ static void sound_cd_thread(void *param)
                         {
                                 int32_t cd_buffer_temp[2] = {0, 0};
                                 
-        			/*First, adjust input from drive according to ATAPI volume.*/
-        			cd_buffer[c]   = ((int32_t)cd_buffer[c]   * atapi_vol_l) / 255;
+                                /* TODO: attenuation from table 132 from section 5.5.6 from mmc-2 spec? */
+                                /* TODO: Handle tracks with pre-emphasis (Quake's soundtrack sounds bad without it) */
+                                /*First, adjust input from drive according to ATAPI volume.*/
+                                cd_buffer[c]   = ((int32_t)cd_buffer[c]   * atapi_vol_l) / 255;
                                 cd_buffer[c+1] = ((int32_t)cd_buffer[c+1] * atapi_vol_r) / 255;
 
                                 /*Apply ATAPI channel select*/

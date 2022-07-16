@@ -2253,6 +2253,10 @@ static device_config_t gd5434_config[] =
                 .selection =
                 {
                         {
+                                .description = "1 MB (Buggy)",
+                                .value = 1
+                        },
+                        {
                                 .description = "2 MB",
                                 .value = 2
                         },
