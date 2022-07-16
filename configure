@@ -627,6 +627,8 @@ OS_WINDOWS_FALSE
 OS_WINDOWS_TRUE
 OS_LINUX_FALSE
 OS_LINUX_TRUE
+FREETYPE2_LIBS
+FREETYPE2_CFLAGS
 WX_VERSION_MICRO
 WX_VERSION_MINOR
 WX_VERSION_MAJOR
@@ -691,6 +693,9 @@ AM_BACKSLASH
 AM_DEFAULT_VERBOSITY
 AM_DEFAULT_V
 AM_V
+CSCOPE
+ETAGS
+CTAGS
 am__untar
 am__tar
 AMTAR
@@ -796,7 +801,9 @@ PKG_CONFIG
 PKG_CONFIG_PATH
 PKG_CONFIG_LIBDIR
 SDL_CFLAGS
-SDL_LIBS'
+SDL_LIBS
+FREETYPE2_CFLAGS
+FREETYPE2_LIBS'
 
 
 # Initialize some variables set by options.
@@ -1467,6 +1474,10 @@ Some influential environment variables:
               path overriding pkg-config's built-in search path
   SDL_CFLAGS  C compiler flags for SDL, overriding pkg-config
   SDL_LIBS    linker flags for SDL, overriding pkg-config
+  FREETYPE2_CFLAGS
+              C compiler flags for FREETYPE2, overriding pkg-config
+  FREETYPE2_LIBS
+              linker flags for FREETYPE2, overriding pkg-config
 
 Use these variables to override the choices made by `configure' or to help
 it to find libraries and programs with nonstandard names/locations.
@@ -3339,6 +3350,20 @@ am__tar='$${TAR-tar} chof - "$$tardir"' am__untar='$${TAR-tar} xf -'
 
 
 
+# Variables for tags utilities; see am/tags.am
+if test -z "$CTAGS"; then
+  CTAGS=ctags
+fi
+
+if test -z "$ETAGS"; then
+  ETAGS=etags
+fi
+
+if test -z "$CSCOPE"; then
+  CSCOPE=cscope
+fi
+
+
 
 # POSIX will say in a future version that running "rm -f" with no argument
 # is OK; and we want to be able to make that assumption in our Makefile
@@ -5172,13 +5197,13 @@ then :
 fi
 
 if test "$enable_debug" = "yes"; then
-   CFLAGS="-Wall -O0 -g -D_DEBUG -fcommon"
-   CXXFLAGS="-Wall -O0 -g -D_DEBUG -fcommon"
+   CFLAGS="$CFLAGS -Wall -O0 -g -D_DEBUG -fcommon"
+   CXXFLAGS="$CXXFLAGS -Wall -O0 -g -D_DEBUG -fcommon"
    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
 else
-   CFLAGS="-O3 -fcommon"
-   CXXFLAGS="-O3 -fcommon"
+   CFLAGS="$CFLAGS -O3 -fcommon"
+   CXXFLAGS="$CXXFLAGS -O3 -fcommon"
    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
 fi
@@ -5516,8 +5541,8 @@ fi
   if test "x$sdl_prefix$sdl_exec_prefix" = x ; then
 
 pkg_failed=no
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for sdl2 >= $min_sdl_version" >&5
-printf %s "checking for sdl2 >= $min_sdl_version... " >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for SDL" >&5
+printf %s "checking for SDL... " >&6; }
 
 if test -n "$SDL_CFLAGS"; then
     pkg_cv_SDL_CFLAGS="$SDL_CFLAGS"
@@ -5557,7 +5582,7 @@ fi
 
 
 if test $pkg_failed = yes; then
-        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+   	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
 
 if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
@@ -5575,7 +5600,7 @@ fi
 
 	sdl_pc=no
 elif test $pkg_failed = untried; then
-        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+     	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
 	sdl_pc=no
 else
@@ -5713,38 +5738,16 @@ else $as_nop
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include "SDL.h"
-
-char*
-my_strdup (char *str)
-{
-  char *new_str;
-
-  if (str)
-    {
-      new_str = (char *)malloc ((strlen (str) + 1) * sizeof(char));
-      strcpy (new_str, str);
-    }
-  else
-    new_str = NULL;
-
-  return new_str;
-}
 
 int main (int argc, char *argv[])
 {
   int major, minor, micro;
-  char *tmp_version;
+  FILE *fp = fopen("conf.sdltest", "w");
 
-  /* This hangs on some systems (?)
-  system ("touch conf.sdltest");
-  */
-  { FILE *fp = fopen("conf.sdltest", "a"); if ( fp ) fclose(fp); }
+  if (fp) fclose(fp);
 
-  /* HP/UX 9 (%@#!) writes to sscanf strings */
-  tmp_version = my_strdup("$min_sdl_version");
-  if (sscanf(tmp_version, "%d.%d.%d", &major, &minor, &micro) != 3) {
+  if (sscanf("$min_sdl_version", "%d.%d.%d", &major, &minor, &micro) != 3) {
      printf("%s, bad version string\n", "$min_sdl_version");
      exit(1);
    }
@@ -6031,36 +6034,11 @@ printf %s "checking for wxWidgets version >= $min_wx_version ()... " >&6; }
     if test -n "$wx_ver_ok"; then
       { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes (version $WX_VERSION)" >&5
 printf "%s\n" "yes (version $WX_VERSION)" >&6; }
-
-      wx_optional_libs=""
-
-    wx_ver_ok=""
-    if test "x$WX_VERSION" != x ; then
-      if test $wx_config_major_version -gt 2; then
-        wx_ver_ok=yes
-      else
-        if test $wx_config_major_version -eq 2; then
-           if test $wx_config_minor_version -gt 9; then
-              wx_ver_ok=yes
-           else
-              if test $wx_config_minor_version -eq 9; then
-                 if test $wx_config_micro_version -ge 0; then
-                    wx_ver_ok=yes
-                 fi
-              fi
-           fi
-        fi
-      fi
-    fi
-
-      if test -n "$wx_ver_ok" -a -n ""; then
-        wx_optional_libs="--optional-libs "
-      fi
-      WX_LIBS=`$WX_CONFIG_WITH_ARGS --libs  $wx_optional_libs`
+      WX_LIBS=`$WX_CONFIG_WITH_ARGS --libs `
 
                               { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for wxWidgets static library" >&5
 printf %s "checking for wxWidgets static library... " >&6; }
-      WX_LIBS_STATIC=`$WX_CONFIG_WITH_ARGS --static --libs  $wx_optional_libs 2>/dev/null`
+      WX_LIBS_STATIC=`$WX_CONFIG_WITH_ARGS --static --libs  2>/dev/null`
       if test "x$WX_LIBS_STATIC" = "x"; then
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
@@ -6300,6 +6278,99 @@ then :
 fi
 
 
+pkg_failed=no
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for FREETYPE2" >&5
+printf %s "checking for FREETYPE2... " >&6; }
+
+if test -n "$FREETYPE2_CFLAGS"; then
+    pkg_cv_FREETYPE2_CFLAGS="$FREETYPE2_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"freetype2\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "freetype2") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_FREETYPE2_CFLAGS=`$PKG_CONFIG --cflags "freetype2" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$FREETYPE2_LIBS"; then
+    pkg_cv_FREETYPE2_LIBS="$FREETYPE2_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"freetype2\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "freetype2") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_FREETYPE2_LIBS=`$PKG_CONFIG --libs "freetype2" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+   	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        FREETYPE2_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "freetype2" 2>&1`
+        else
+	        FREETYPE2_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "freetype2" 2>&1`
+        fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$FREETYPE2_PKG_ERRORS" >&5
+
+	as_fn_error $? "Package requirements (freetype2) were not met:
+
+$FREETYPE2_PKG_ERRORS
+
+Consider adjusting the PKG_CONFIG_PATH environment variable if you
+installed software in a non-standard prefix.
+
+Alternatively, you may set the environment variables FREETYPE2_CFLAGS
+and FREETYPE2_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details." "$LINENO" 5
+elif test $pkg_failed = untried; then
+     	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+	{ { printf "%s\n" "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+printf "%s\n" "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "The pkg-config script could not be found or is too old.  Make sure it
+is in your PATH or set the PKG_CONFIG environment variable to the full
+path to pkg-config.
+
+Alternatively, you may set the environment variables FREETYPE2_CFLAGS
+and FREETYPE2_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details.
+
+To get pkg-config, see <http://pkg-config.freedesktop.org/>.
+See \`config.log' for more details" "$LINENO" 5; }
+else
+	FREETYPE2_CFLAGS=$pkg_cv_FREETYPE2_CFLAGS
+	FREETYPE2_LIBS=$pkg_cv_FREETYPE2_LIBS
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+
+fi
+
+
+
 build_macosx="no"
 build_linux="no"
 build_win="no"
@@ -6504,6 +6575,7 @@ else $as_nop
 fi
 
        build_linux="yes"
+       CFLAGS="$CFLAGS -DHAVE_UNISTD_H"
        ;;
     *-*-freebsd*)
        CFLAGS="$CFLAGS -I/usr/local/include"
@@ -6604,6 +6676,7 @@ else $as_nop
 fi
 
        build_other="yes"
+       CFLAGS="$CFLAGS -DHAVE_UNISTD_H"
        ;;
     *)
        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for glGetError in -lGL" >&5
@@ -6704,8 +6777,9 @@ fi
        ;;
 esac
 
-CFLAGS="$CFLAGS $SDL_CFLAGS"
-LIBS="$LIBS $WX_LIBS $SDL_LIBS"
+CFLAGS="$CFLAGS $SDL_CFLAGS $FREETYPE2_CFLAGS"
+CXXFLAGS="$CXXFLAGS $SDL_CFLAGS $FREETYPE2_CFLAGS"
+LIBS="$LIBS $WX_LIBS $SDL_LIBS $FREETYPE2_LIBS"
 
  if test "$build_linux" = "yes"; then
   OS_LINUX_TRUE=
